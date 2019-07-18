@@ -1,4 +1,4 @@
-## INSTALATION ##
+## INSTALLATION ##
 
 Step 1. 
 Install R and R Studio by following the prompts at the following websites
