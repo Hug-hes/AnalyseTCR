@@ -21,7 +21,7 @@ install.packages("shiny", "shinyFiles", "DT", "tcR", "shinyjs", "dplyr", "ggplot
 
 Step 4. Download Immunarch package by going to the website: https://immunarch.com/articles/1_introduction.html
 
-After downloading the Immunarch.tar.gz file then run the following two commands in the RStudio console window (replacing "path/to/your/folder/with/immunarch.tar.gz" with a path to the folder that contains your immunarch.tar.gz) :
+After downloading the Immunarch.tar.gz file then run the following two commands in the R Studio console window (replacing "path/to/your/folder/with/immunarch.tar.gz" with a path to the folder that contains your immunarch.tar.gz) :
 
 install.packages("devtools", dependencies = T)
 
