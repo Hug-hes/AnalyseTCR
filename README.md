@@ -5,9 +5,9 @@ Install R and R Studio by following the prompts at the following websites
 
 Recommended to use an older version of R (say December 2018) as some R packages are not compliant with newer versions of R: https://cran.r-project.org/bin/windows/base/old/
 
--Windows - https://cran.r-project.org/bin/windows/base/
--Mac - https://cran.r-project.org/bin/macosx/
--R studio - https://www.rstudio.com/products/rstudio/download/
+- Windows - https://cran.r-project.org/bin/windows/base/
+- Mac - https://cran.r-project.org/bin/macosx/
+- R studio - https://www.rstudio.com/products/rstudio/download/
 
 Step 2.
 Install latest version of Python by following the prompts at the website below
