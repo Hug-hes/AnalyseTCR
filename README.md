@@ -3,7 +3,7 @@
 Step 1. 
 Install R and R Studio by following the prompts at the following websites
 
-Reccomended to use an older version of R (say December 2018) as some R packages are not compliant with newer versions of R: https://cran.r-project.org/bin/windows/base/old/
+Recommended to use an older version of R (say December 2018) as some R packages are not compliant with newer versions of R: https://cran.r-project.org/bin/windows/base/old/
 
 Windows - https://cran.r-project.org/bin/windows/base/
 
