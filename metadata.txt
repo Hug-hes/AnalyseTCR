@@ -1,0 +1,9 @@
+Sample	Status
+REJE-0-CD4_S9_L001__JN_mixcr	Zero
+REJE-12-CD4_S15_L001__JN_mixcr	Twelve
+REJE-3-CD8_S12_L001__JN_mixcr	Three
+REJE-0-CD8_S10_L001__JN_mixcr	Zero
+REJE-6-CD4_S13_L001__JN_mixcr	Six
+REJE-12-CD8_S16_L001__JN_mixcr	Twelve
+REJE-3-CD4_S11_L001__JN_mixcr	Three
+REJE-6-CD8_S14_L001__JN_mixcr	Six
