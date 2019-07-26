@@ -42,7 +42,7 @@ devtools::install_local("path/to/your/folder/with/immunarch.tar.gz", dependencie
 Step 1. 
 Download the CoEve Shiny app by using the Github “Clone or Download” button on this page. Then make sure that you have the following files (preferably saved in the same folder):
 
-- Metadata (please call this metadata.txt) - Example metadata found in GitHub called "metadata.txt". You can make changes to this based on your own samples.
+- Metadata (please call this metadata.txt) - Example metadata found on GitHub called "metadata.txt". You can make changes to this based on your own samples by changing the variables.
 - Mixcr files to analyse
 - "shinyApp" folder containing the app.R file
 
