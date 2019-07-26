@@ -17,7 +17,7 @@ https://www.python.org/downloads/ - Choose the prompts based on the operating sy
 Step 3.
 Open R Studio and copy/paste (or type) in the following command into the R Studio console window:
 
-install.packages("shiny", "shinyFiles", "DT", "tcR", "shinyjs", "dplyr", "ggplot2", "reticulate")
+install.packages(c("shiny", "shinyFiles", "DT", "tcR", "shinyjs", "dplyr", "ggplot2", "reticulate"))
 
 Step 4. Download Immunarch package by going to the website: https://immunarch.com/articles/1_introduction.html
 
