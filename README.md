@@ -19,6 +19,14 @@ Open R Studio and copy/paste (or type) in the following command into the R Studi
 
 install.packages(c("shiny", "shinyFiles", "DT", "tcR", "shinyjs", "dplyr", "ggplot2", "reticulate"))
 
+Choose the CRAN mirror that is closest to your location.
+
+Click "Yes" to using personal library. (Should be a dialogue box that appears for this with options to click yes, no, maybe).
+
+If the prompt doesn't work for a certain library, try to install individually by running the command:
+
+install.packages("libray_to_install")
+
 Step 4. Download Immunarch package by going to the website: https://immunarch.com/articles/1_introduction.html
 
 After downloading the Immunarch.tar.gz file then run the following two commands in the R Studio console window (replacing "path/to/your/folder/with/immunarch.tar.gz" with a path to the folder that contains your immunarch.tar.gz) :
@@ -34,7 +42,7 @@ devtools::install_local("path/to/your/folder/with/immunarch.tar.gz", dependencie
 Step 1. 
 Download the CoEve Shiny app by using the Github “Clone or Download” button on this page. Then make sure that you have the following files (preferably saved in the same folder):
 
-- Metadata (please call this metadata.txt)
+- Metadata (please call this metadata.txt) - Example metadata found in GitHub called "metadata.txt". You can make changes to this based on your own samples.
 - Mixcr files to analyse
 - "shinyApp" folder containing the app.R file
 
