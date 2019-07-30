@@ -135,7 +135,7 @@ ui <- fluidPage(
             column(3, offset = 1,
               textInput("topText", label = "Name Graph", value = ".png")
             ),
-            column(3, offset = 2,
+            column(3, offset = 2, style="padding-top:25px",
               downloadButton('topDownload', 'Download Graph')
             )
           ),
@@ -154,7 +154,7 @@ ui <- fluidPage(
             column(3, offset = 1,
               textInput("geneText", label = "Name Graph", value = ".png")
             ),
-            column(3, offset = 2,
+            column(3, offset = 2, style="padding-top:25px",
               downloadButton('geneDownload', 'Download Graph')
             )
           ),
@@ -167,7 +167,7 @@ ui <- fluidPage(
             column(3,
               textInput("shannonText", label = "Name Graph", value = ".png")
             ),
-            column(3, offset = 1,
+            column(3, offset = 1, style="padding-top:25px",
               downloadButton('shannonDownload', 'Download Graph')
             )
           ),  
@@ -185,7 +185,7 @@ ui <- fluidPage(
             column(3, offset = 1,
               textInput("overText", label = "Name Graph", value = ".png")
             ),
-            column(3, offset = 2,
+            column(3, offset = 2, style="padding-top:25px",
               downloadButton('overDownload', 'Download Graph')
             )
           ),
@@ -210,7 +210,7 @@ ui <- fluidPage(
             column(3, offset = 1,
               textInput("immubasicText", label = "Name Graph", value = ".png")
             ),
-            column(3, offset = 2,
+            column(3, offset = 2, style="padding-top:25px",
               downloadButton('immubasicDownload', 'Download Graph')
             )
           ),
@@ -229,7 +229,7 @@ ui <- fluidPage(
             column(3, offset = 1,
               textInput("immuheatText", label = "Name Graph", value = ".png")
             ),
-            column(3, offset = 2,
+            column(3, offset = 2, style="padding-top:25px",
               downloadButton('immuheatDownload', 'Download Graph')
             )
           ),
@@ -254,7 +254,7 @@ ui <- fluidPage(
             column(3, offset = 1,
               textInput("immugeneText", label = "Name Graph", value = ".png")
             ),
-            column(3, offset = 2,
+            column(3, offset = 2, style="padding-top:25px",
               downloadButton('immugeneDownload', 'Download Graph')
             )
           ),
@@ -275,7 +275,7 @@ ui <- fluidPage(
             column(3, offset = 1,
               textInput("immudivText", label = "Name Graph", value = ".png")
             ),
-            column(3, offset = 2,
+            column(3, offset = 2, style="padding-top:25px",
               downloadButton('immudivDownload', 'Download Graph')
             )
           ),
@@ -628,7 +628,7 @@ server <- function(input, output, session) {
     }, height = 1000)
 
     output$loadFinish <- renderText({ 
-    "Data load successful\n"
+    "Data has loaded successfully\n"
     })
 
     output$newLine <- renderUI({ 
