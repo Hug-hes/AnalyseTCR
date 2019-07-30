@@ -6,259 +6,282 @@ library(shinyjs)
 library(dplyr)
 library(ggplot2)
 library(immunarch)
+library(reticulate)
+
+load_data <- function() {
+  hide("main_content")
+  show("loading_page")
+}
+
+ show_data <- function() {
+  hide("loading_page")
+  show("main_content")
+}
+
 
 # Define UI for data upload app ----
 ui <- fluidPage(
 
   useShinyjs(),
+
+  hidden(div(
+    id = "loading_page",
+    h1("Loading your data...", style="text-align:center; padding-top:200px;")
+  )),
   
   # App title ----
-  navbarPage(
-   
-    "COEVE",
-    
-    tabPanel("Upload",
-             
+  div(
+    id = "main_content",
+    navbarPage(
+     
+      "COEVE",
+      
+      tabPanel("Upload",
+               
+           fluidRow(        
+            column(8, align="center", offset = 2,
+            # Input: Select a file ----
+            fileInput("file1", "Choose Mixcr File",
+            multiple = TRUE,
+            accept = c("text/csv",
+                        "text/comma-separated-values,text/plain",
+                        ".csv")),
+                   
+            # Horizontal line ----
+            tags$hr(),
+                   
+            # Input: Checkbox if file has header ----
+            checkboxInput("header", "Header", TRUE),
+                   
+            # Input: Select separator ----
+            radioButtons("sep", "Separator",
+            choices = c(Comma = ",",
+                        Semicolon = ";",
+                        Tab = "\t"),
+            selected = "\t"),
+                   
+            # Input: Select quotes ----
+            radioButtons("quote", "Quote",
+            choices = c(None = "",
+                        "Double Quote" = '"',
+                        "Single Quote" = "'"),
+            selected = ""),
+                   
+            # Horizontal line ----
+            tags$hr(),
+                  
+            # Input: Select number of rows to display ----
+            radioButtons("disp", "Display",
+            choices = c(Head = "head",
+            All = "all"),
+            selected = "head")
+          )
+        )  
+      ),
+
+      tabPanel("Choose Files",
          fluidRow(        
-          column(8, align="center", offset = 2,
-          # Input: Select a file ----
-          fileInput("file1", "Choose Mixcr File",
-          multiple = TRUE,
-          accept = c("text/csv",
-                      "text/comma-separated-values,text/plain",
-                      ".csv")),
-                 
-          # Horizontal line ----
-          tags$hr(),
-                 
-          # Input: Checkbox if file has header ----
-          checkboxInput("header", "Header", TRUE),
-                 
-          # Input: Select separator ----
-          radioButtons("sep", "Separator",
-          choices = c(Comma = ",",
-                      Semicolon = ";",
-                      Tab = "\t"),
-          selected = "\t"),
-                 
-          # Input: Select quotes ----
-          radioButtons("quote", "Quote",
-          choices = c(None = "",
-                      "Double Quote" = '"',
-                      "Single Quote" = "'"),
-          selected = ""),
-                 
-          # Horizontal line ----
-          tags$hr(),
-                
-          # Input: Select number of rows to display ----
-          radioButtons("disp", "Display",
-          choices = c(Head = "head",
-          All = "all"),
-          selected = "head")
+            column(8, align="center", offset = 2, 
+
+            span(textOutput("loadFinish"), style="color:red; font-weight:bold; font-size:20px"),
+            uiOutput("newLine"),
+
+            div(HTML("<b>Choose Directory Containing Metadata:</b>"), style = "margin-bottom: 5px;"),
+            shinyDirButton('metaLocation', 'Browse...', title = 'Select a directory'),
+            br(),
+            htmlOutput('metaDirectory'),        
+   
+            # Select variables to display ----
+            tags$hr(),
+            uiOutput("checkbox"), 
+                   
+            tags$hr(),
+            div(HTML("<b>Choose Output Directory:</b>"), style = "margin-bottom: 5px;"),
+            shinyDirButton('resultsLocation', 'Browse...', title = 'Select a directory'),
+            br(),
+            htmlOutput('receptorDirectory'),
+
+            #creates field where user can choose what to name their CSV file
+            tags$hr(),
+            textInput("csvtext", label = "Name CSV", value = ".csv"),
+
+            tags$hr(),
+            actionButton("action1", "Create CSV", class = "btn-primary")         
+            )
+          )
+        ),
+      
+      navbarMenu("TCR Package",
+        
+        tabPanel("Shared Clonotype Table",
+          DT::dataTableOutput("select_table"), style = "height:500px; overflow-y: scroll;overflow-x: scroll;"
+        ),
+        
+        tabPanel("Cloneset Summary",         
+          DT::dataTableOutput("clonesetTable"), style = "height:500px; overflow-y: scroll;overflow-x: scroll;"
+        ),
+
+        tabPanel("Repseq Summary", 
+          DT::dataTableOutput("repseqTable"), style = "height:500px; overflow-y: scroll;overflow-x: scroll;"
+        ),
+
+        tabPanel("Top Proportions", 
+          fluidRow(
+            column(3,
+              selectInput("topChoose", "Choose what you want to display:", 
+               c("Top Proportion Graph",
+                 "Clonal Space Homeostasis"))
+            ),
+            column(3, offset = 1,
+              textInput("topText", label = "Name Graph", value = ".png")
+            ),
+            column(3, offset = 2,
+              downloadButton('topDownload', 'Download Graph')
+            )
+          ),
+          hr(),
+          plotOutput("topGraph")
+        ),
+
+        tabPanel("Gene Usage", 
+          fluidRow(
+            column(3,
+              selectInput("geneChoose", "Choose graph to display:", 
+                   c("J Usage Graph",
+                     "J Usage Column",
+                     "V Usage Graph"))
+            ),
+            column(3, offset = 1,
+              textInput("geneText", label = "Name Graph", value = ".png")
+            ),
+            column(3, offset = 2,
+              downloadButton('geneDownload', 'Download Graph')
+            )
+          ),
+          hr(),
+          plotOutput("geneGraph")    
+        ),
+
+        tabPanel("Jensen-Shannon Divergence", 
+          fluidRow(
+            column(3,
+              textInput("shannonText", label = "Name Graph", value = ".png")
+            ),
+            column(3, offset = 1,
+              downloadButton('shannonDownload', 'Download Graph')
+            )
+          ),  
+          hr(),
+          plotOutput("shannonGraph")    
+        ),
+
+        tabPanel("Overlap quantification", 
+          fluidRow(
+            column(3,
+              selectInput("overChoose", "Choose graph to display:", 
+                   c("Heatmap",
+                     "Top Cross"))
+            ),
+            column(3, offset = 1,
+              textInput("overText", label = "Name Graph", value = ".png")
+            ),
+            column(3, offset = 2,
+              downloadButton('overDownload', 'Download Graph')
+            )
+          ),
+          hr(),
+          plotOutput("overGraph")    
         )
-      )  
-    ),
+      ),
+      
+      navbarMenu("Immunarch",
+        
+        tabPanel("Basic Analysis and Clonality", 
+          fluidRow(
+            column(3,
+              selectInput("immubasicChoose", "Choose graph to display:", 
+                   c( "Number of Clonotypes",
+                      "Distribution of CDR3 Length",
+                      "Distribution of Clonotype Abundances",
+                      "Top Clonal Proportion",
+                      "Tail Clonal Proportion",
+                      "Relative Abundance"))
+            ),
+            column(3, offset = 1,
+              textInput("immubasicText", label = "Name Graph", value = ".png")
+            ),
+            column(3, offset = 2,
+              downloadButton('immubasicDownload', 'Download Graph')
+            )
+          ),
+          hr(),
+          plotOutput("immubasicGraph")    
+        ),
 
-    tabPanel("Choose Files",
-       fluidRow(        
-          column(8, align="center", offset = 2, 
+        tabPanel("Repertoire Overlap", 
+          fluidRow(
+            column(3,
+              selectInput("immuheatChoose", "Choose graph to display:", 
+                   c("Repertoire Overlap Heatmap",
+                     "Repertoire Analysis",
+                     "K-means Cluster Analysis"))
+            ),
+            column(3, offset = 1,
+              textInput("immuheatText", label = "Name Graph", value = ".png")
+            ),
+            column(3, offset = 2,
+              downloadButton('immuheatDownload', 'Download Graph')
+            )
+          ),
+          hr(),
+          plotOutput("immuheatGraph")    
+        ),
 
-          div(HTML("<b>Choose Directory Containing Metadata:</b>"), style = "margin-bottom: 5px;"),
-          shinyDirButton('metaLocation', 'Browse...', title = 'Select a directory'),
-          br(),
-          htmlOutput('metaDirectory'),        
- 
-          # Select variables to display ----
-          tags$hr(),
-          uiOutput("checkbox"), 
-                 
-          tags$hr(),
-          div(HTML("<b>Choose Output Directory:</b>"), style = "margin-bottom: 5px;"),
-          shinyDirButton('resultsLocation', 'Browse...', title = 'Select a directory'),
-          br(),
-          htmlOutput('receptorDirectory'),
+          tabPanel("Gene Usage Analysis", 
+          fluidRow(
+            column(3,
+              selectInput("immugeneChoose", "Choose graph to display:", 
+                   c("Gene Usage Comparison",
+                     "Gene Usage Histogram",
+                     "Gene Usage Boxplot",
+                     "Gene Usage Tree",
+                     "Gene Usage Jensen-Shannon",
+                     "Gene Usage Correlation",
+                     "Hierarchial Cluster Analysis",
+                     "K-means Cluster Analysis",
+                     "Spectratyping"))
+            ),
+            column(3, offset = 1,
+              textInput("immugeneText", label = "Name Graph", value = ".png")
+            ),
+            column(3, offset = 2,
+              downloadButton('immugeneDownload', 'Download Graph')
+            )
+          ),
+          hr(),
+          plotOutput("immugeneGraph")    
+        ),
 
-          #creates field where user can choose what to name their CSV file
-          tags$hr(),
-          textInput("csvtext", label = "Name CSV", value = ".csv"),
-
-          tags$hr(),
-          actionButton("action1", "Create CSV", class = "btn-primary")         
-          )
+          tabPanel("Diversity Estimation", 
+          fluidRow(
+            column(3,
+              selectInput("immudivChoose", "Choose graph to display:", 
+                   c("Chao1 Estimator",
+                     "Hill Numbers",
+                     "True Diversity",
+                     "D50 Diversity Index",
+                     "Rarefaction Analysis"))
+            ),
+            column(3, offset = 1,
+              textInput("immudivText", label = "Name Graph", value = ".png")
+            ),
+            column(3, offset = 2,
+              downloadButton('immudivDownload', 'Download Graph')
+            )
+          ),
+          hr(),
+          plotOutput("immudivGraph")    
         )
-      ),
-    
-    navbarMenu("TCR Package",
-      
-      tabPanel("Shared Clonotype Table",
-        DT::dataTableOutput("select_table"), style = "height:500px; overflow-y: scroll;overflow-x: scroll;"
-      ),
-      
-      tabPanel("Cloneset Summary",         
-        DT::dataTableOutput("clonesetTable"), style = "height:500px; overflow-y: scroll;overflow-x: scroll;"
-      ),
-
-      tabPanel("Repseq Summary", 
-        DT::dataTableOutput("repseqTable"), style = "height:500px; overflow-y: scroll;overflow-x: scroll;"
-      ),
-
-      tabPanel("Top Proportions", 
-        fluidRow(
-          column(3,
-            selectInput("topChoose", "Choose what you want to display:", 
-             c("Top Proportion Graph",
-               "Clonal Space Homeostasis"))
-          ),
-          column(3, offset = 1,
-            textInput("topText", label = "Name Graph", value = ".png")
-          ),
-          column(3, offset = 2,
-            downloadButton('topDownload', 'Download Graph')
-          )
-        ),
-        hr(),
-        plotOutput("topGraph")
-      ),
-
-      tabPanel("Gene Usage", 
-        fluidRow(
-          column(3,
-            selectInput("geneChoose", "Choose graph to display:", 
-                 c("J Usage Graph",
-                   "J Usage Column",
-                   "V Usage Graph"))
-          ),
-          column(3, offset = 1,
-            textInput("geneText", label = "Name Graph", value = ".png")
-          ),
-          column(3, offset = 2,
-            downloadButton('geneDownload', 'Download Graph')
-          )
-        ),
-        hr(),
-        plotOutput("geneGraph")    
-      ),
-
-      tabPanel("Jensen-Shannon Divergence", 
-        fluidRow(
-          column(3,
-            textInput("shannonText", label = "Name Graph", value = ".png")
-          ),
-          column(3, offset = 1,
-            downloadButton('shannonDownload', 'Download Graph')
-          )
-        ),  
-        hr(),
-        plotOutput("shannonGraph")    
-      ),
-
-      tabPanel("Overlap quantification", 
-        fluidRow(
-          column(3,
-            selectInput("overChoose", "Choose graph to display:", 
-                 c("Heatmap",
-                   "Top Cross"))
-          ),
-          column(3, offset = 1,
-            textInput("overText", label = "Name Graph", value = ".png")
-          ),
-          column(3, offset = 2,
-            downloadButton('overDownload', 'Download Graph')
-          )
-        ),
-        hr(),
-        plotOutput("overGraph")    
-      )
-    ),
-    
-    navbarMenu("Immunarch",
-      
-      tabPanel("Basic Analysis and Clonality", 
-        fluidRow(
-          column(3,
-            selectInput("immubasicChoose", "Choose graph to display:", 
-                 c( "Number of Clonotypes",
-                    "Distribution of CDR3 Length",
-                    "Distribution of Clonotype Abundances",
-                    "Top Clonal Proportion",
-                    "Tail Clonal Proportion",
-                    "Relative Abundance"))
-          ),
-          column(3, offset = 1,
-            textInput("immubasicText", label = "Name Graph", value = ".png")
-          ),
-          column(3, offset = 2,
-            downloadButton('immubasicDownload', 'Download Graph')
-          )
-        ),
-        hr(),
-        plotOutput("immubasicGraph")    
-      ),
-
-      tabPanel("Repertoire Overlap", 
-        fluidRow(
-          column(3,
-            selectInput("immuheatChoose", "Choose graph to display:", 
-                 c("Repertoire Overlap Heatmap",
-                   "Repertoire Analysis",
-                   "K-means Cluster Analysis"))
-          ),
-          column(3, offset = 1,
-            textInput("immuheatText", label = "Name Graph", value = ".png")
-          ),
-          column(3, offset = 2,
-            downloadButton('immuheatDownload', 'Download Graph')
-          )
-        ),
-        hr(),
-        plotOutput("immuheatGraph")    
-      ),
-
-        tabPanel("Gene Usage Analysis", 
-        fluidRow(
-          column(3,
-            selectInput("immugeneChoose", "Choose graph to display:", 
-                 c("Gene Usage Comparison",
-                   "Gene Usage Histogram",
-                   "Gene Usage Boxplot",
-                   "Gene Usage Tree",
-                   "Gene Usage Jensen-Shannon",
-                   "Gene Usage Correlation",
-                   "Hierarchial Cluster Analysis",
-                   "K-means Cluster Analysis",
-                   "Spectratyping"))
-          ),
-          column(3, offset = 1,
-            textInput("immugeneText", label = "Name Graph", value = ".png")
-          ),
-          column(3, offset = 2,
-            downloadButton('immugeneDownload', 'Download Graph')
-          )
-        ),
-        hr(),
-        plotOutput("immugeneGraph")    
-      ),
-
-        tabPanel("Diversity Estimation", 
-        fluidRow(
-          column(3,
-            selectInput("immudivChoose", "Choose graph to display:", 
-                 c("Chao1 Estimator",
-                   "Hill Numbers",
-                   "True Diversity",
-                   "D50 Diversity Index",
-                   "Rarefaction Analysis"))
-          ),
-          column(3, offset = 1,
-            textInput("immudivText", label = "Name Graph", value = ".png")
-          ),
-          column(3, offset = 2,
-            downloadButton('immudivDownload', 'Download Graph')
-          )
-        ),
-        hr(),
-        plotOutput("immudivGraph")    
       )
     )
   )
@@ -331,6 +354,7 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$action1, {
+    load_data()
     metadata <- repLoad(paste(dataUpload$meta_folder, "/metadata.txt", sep=""))
     dir.create(file.path(dataUpload$receptor_folder, "tempFile"), recursive = FALSE)
 
@@ -602,6 +626,16 @@ server <- function(input, output, session) {
     output$immudivGraph <- renderPlot({ 
       immudivInput()
     }, height = 1000)
+
+    output$loadFinish <- renderText({ 
+    "Data load successful\n"
+    })
+
+    output$newLine <- renderUI({ 
+      tagList(tags$hr())
+    })
+
+    show_data()
 
   })
 }
