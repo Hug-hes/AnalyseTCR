@@ -33,7 +33,7 @@ install.packages("devtools", dependencies = T)
 
 and:
 
-devtools::install_local("jaidenchoy/testCOEVE")
+devtools::install_github("jaidenchoy/testCOEVE")
 
 Click Option 3 - "None" when prompted for package updates
 
