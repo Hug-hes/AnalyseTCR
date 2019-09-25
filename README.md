@@ -19,7 +19,7 @@ Open R Studio and copy/paste (or type) in the following command into the R Studi
 
 install.packages(c("shiny", "shinyFiles", "DT", "tcR", "shinyjs", "dplyr", "ggplot2", "reticulate"))
 
-Choose the CRAN mirror that is closest to your location.
+Choose the Canberra or Melbourne CRAN mirror. 
 
 Click "Yes" to using personal library. (Should be a dialogue box that appears for this with options to click yes, no, maybe).
 
@@ -27,15 +27,15 @@ If the prompt doesn't work for a certain library, try to install individually by
 
 install.packages("libray_to_install")
 
-Step 4. Download Immunarch package by going to the website: https://immunarch.com/articles/1_introduction.html
-
-After downloading the Immunarch.tar.gz file then run the following two commands in the R Studio console window (replacing "path/to/your/folder/with/immunarch.tar.gz" with a path to the folder that contains your immunarch.tar.gz) :
+Step 4. Download Immunarch by typing in the commands
 
 install.packages("devtools", dependencies = T)
 
 and:
 
-devtools::install_local("path/to/your/folder/with/immunarch.tar.gz", dependencies=T)
+devtools::install_local("jaidenchoy/testCOEVE")
+
+Click Option 3 - "None" when prompted for package updates
 
 ## RUNNING APP ##
  
@@ -54,4 +54,4 @@ Click "Run App" button and if all packages have installed properly, a new window
 
 Step 4.
 Follow the navbar options from left to right on the app 
-NOTE: Mixcr file names should be kept to 13 characters or less otherwise one of the graphs produces an error
+NOTE: Mixcr file names should be kept to 13 characters or less otherwise one of the graphs produces an error# Immunarch
