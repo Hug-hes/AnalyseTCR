@@ -149,7 +149,8 @@ ui <- fluidPage(
               selectInput("geneChoose", "Choose graph to display:", 
                    c("J Usage Graph",
                      "J Usage Column",
-                     "V Usage Graph"))
+                     "V Usage Graph",
+                     "V Usage Column"))
             ),
             column(3, offset = 1,
               textInput("geneText", label = "Name Graph", value = ".png")
@@ -444,9 +445,10 @@ server <- function(input, output, session) {
 
     geneInput <- reactive({
       switch(input$geneChoose,
-          "J Usage Graph" = vis.gene.usage(samples, HUMAN_TRBJ, .main = 'twb J-usage dodge', .dodge = T),
-          "J Usage Column" = vis.gene.usage(samples, HUMAN_TRBJ, .main = 'twb J-usage column', .dodge = F, .ncol = 2),
-          "V Usage Graph" = vis.gene.usage(imm1.vs, NA, .main = 'twb[[1]] V-usage', .coord.flip = F)
+          "J Usage Graph" = vis.gene.usage(samples, HUMAN_TRBJ, .main = 'J-usage dodge', .dodge = T),
+          "J Usage Column" = vis.gene.usage(samples, HUMAN_TRBJ, .main = 'J-usage column', .dodge = F, .ncol = 2),
+          "V Usage Graph" = vis.gene.usage(imm1.vs, NA, .main = 'V-usage Graph', .coord.flip = F),
+          "V Usage Column" = vis.gene.usage(samples, HUMAN_TRBV, .main = 'V-usage column', .dodge = F, .ncol = 2)
           )
     })
 
@@ -558,8 +560,8 @@ server <- function(input, output, session) {
     imm_cl_pca = geneUsageAnalysis(imm_gu, "js+pca+kmeans", .verbose = F)
     imm_cl_mds = geneUsageAnalysis(imm_gu, "js+mds+kmeans", .verbose = F)
     imm_cl_tsne = geneUsageAnalysis(imm_gu, "js+tsne+kmeans", .perp = .01, .verbose = F)
-    p1 = vis(immunarch::spectratype(immdata[[1]], .quant = "id", .col = "aa", .gene = "v"))
-    p2 = vis(immunarch::spectratype(immdata[[1]], .quant = "count", .col = "aa", .gene = "v"))
+    p1 = vis(immunarch::spectratype(immdata[[1]], .quant = "id", .col = "aa"))
+    p2 = vis(immunarch::spectratype(immdata[[1]], .quant = "count", .col = "aa"))
    
     immugeneInput <- reactive({
       switch(input$immugeneChoose,
