@@ -3,10 +3,14 @@ library(shinyFiles)
 library(DT)
 library(tcR)
 library(shinyjs)
+library(plyr)
 library(dplyr)
 library(ggplot2)
 library(immunarch)
 library(reticulate)
+library(plotly)
+library(tidyverse)
+library(reshape)
 
 load_data <- function() {
   hide("main_content")
@@ -283,6 +287,29 @@ ui <- fluidPage(
           hr(),
           plotOutput("immudivGraph")    
         )
+      ),
+
+      navbarMenu("COEVE Scripts",
+
+        tabPanel("Frequencies Over Time",
+          fluidRow(
+            column(3,
+              selectInput("frequencyChoose", "Choose graph to display:", 
+                   c("Zero Months",
+                     "Six Months",
+                     "Twelve Months",
+                     "TwentyFour Months"))
+            ),
+            column(3, offset = 1,
+              textInput("frequencyText", label = "Name Graph", value = ".png")
+            ),
+            column(3, offset = 2, style="padding-top:25px",
+              downloadButton('frequencyDownload', 'Download Graph')
+            )
+          ),
+          hr(),
+          plotOutput("frequencyGraph")
+        )
       )
     )
   )
@@ -388,6 +415,7 @@ server <- function(input, output, session) {
     #runs tcR script to generate the csv file
     samples <- parse.folder(directory, 'mixcr')
     imm.shared <- shared.repertoire(.data = samples, .type = 'n0rc', .min.ppl = 1, .verbose = F)
+    imm.shared[is.na(imm.shared)] <- 0
     fileI = input$csvtext
     write.csv(imm.shared, file = fileI)
 
@@ -404,6 +432,7 @@ server <- function(input, output, session) {
     newEnd <- paste("/", input$csvtext, sep="")
 
     csvFile <- paste(changeDir, newEnd, sep="")
+    cloneFile <- read.csv(csvFile)
 
     output$select_table = DT::renderDataTable({
       dframe <- read.csv(csvFile)
@@ -628,6 +657,58 @@ server <- function(input, output, session) {
     output$immudivGraph <- renderPlot({ 
       immudivInput()
     }, height = 1000)
+
+    sixMonthTotal <- sum(cloneFile[,5], na.rm=TRUE)
+    sixtotalintotal <- sum(sixMonthTotal)
+    sixpercentagetable <- (100/sixtotalintotal) * cloneFile[,5]
+            
+    twentyFourMonthTotal <- sum(cloneFile[,7], na.rm=TRUE)
+    twentyFourtotalintotal <- sum(twentyFourMonthTotal)
+    twentyFourpercentagetable <- (100/twentyFourtotalintotal) * cloneFile[,7]
+            
+    twelveMonthTotal <- sum(cloneFile[,6], na.rm=TRUE)
+    twelvetotalintotal <- sum(twelveMonthTotal)
+    twelvepercentagetable <- (100/twelvetotalintotal) * cloneFile[,6]
+            
+    zeroMonthTotal <- sum(cloneFile[,4], na.rm=TRUE)
+    zerototalintotal <- sum(zeroMonthTotal)
+    zeropercentagetable <- (100/zerototalintotal) * cloneFile[,4]
+            
+    cloneFile$zero <- log1p(zeropercentagetable)
+    cloneFile$six <- log1p(sixpercentagetable)
+    cloneFile$twelve <- log1p(twelvepercentagetable)
+    cloneFile$twentyFour <- log1p(twentyFourpercentagetable)
+
+    monthInput <- reactive({
+      switch(input$frequencyChoose,
+          "Zero Months" = cloneFile$zero,
+          "Six Months" = cloneFile$six,
+          "Twelve Months" = cloneFile$twelve,
+          "TwentyFour Months" = cloneFile$twentyFour
+          )
+    })
+
+    frequencyInput <- reactive({
+    cloneFile <- cloneFile[order(monthInput(), decreasing = TRUE),]
+    graphFreqy <- cloneFile[,8:11]
+    graphFreqy$timePoint <- rownames(graphFreqy)
+    graphFreq <- graphFreqy[1:100,] %>% gather(time_Point, frequency, -timePoint)
+            
+    graphFreq$time_Point <- as.character(graphFreq$time_Point)
+    graphFreq$time_Point <- factor(graphFreq$time_Point, levels=unique(graphFreq$time_Point))
+    ggplot(graphFreq, aes(x=time_Point, y=frequency, group=timePoint)) +geom_line() + labs(title=paste("Top 100 clones by frequency at 0 months shown over 4 time points"), x="Time Point (months)", y="(log) Clonotype Frequency")
+    })
+          
+    output$frequencyGraph <- renderPlot({     
+      frequencyInput()
+    }, height = 1000)
+
+    output$frequencyDownload <- downloadHandler(
+      filename = input$frequencyText,
+      content = function(file) {
+        ggsave(input$frequencyText, plot = frequencyInput(), device = "png")
+      }
+    )
 
     output$loadFinish <- renderText({ 
     "Data has loaded successfully\n"
